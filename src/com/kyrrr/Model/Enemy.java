@@ -8,6 +8,7 @@ import net.slashie.libjcsi.CSIColor;
  */
 public class Enemy extends Actor {
 
+    /** what up */
     public Enemy(){
 
     }
@@ -72,4 +73,8 @@ public class Enemy extends Actor {
         super.die();
     }
 
+    @Override
+    public String getId() {
+        return super.getId();
+    }
 }

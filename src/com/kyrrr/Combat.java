@@ -1,15 +1,12 @@
 package com.kyrrr;
 
-import com.kyrrr.Model.Actor;
-import com.kyrrr.Model.Loop;
-import com.kyrrr.Model.Player;
+import com.kyrrr.Model.*;
 import net.slashie.libjcsi.CSIColor;
 import net.slashie.libjcsi.CharKey;
 import net.slashie.libjcsi.ConsoleSystemInterface;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by kyrrebugge on 03.07.2017.
@@ -17,66 +14,71 @@ import java.util.List;
 // TODO: ATTACKS/EVERYTHING
 class Combat extends Loop {
 
-    Actor actor1;
-    Actor actor2;
+    private List<Actor> actors = new ArrayList<>();
     
-    Combat(Actor actor1, Actor actor2){
-        this.actor1 = actor1;
-        this.actor2 = actor2;
+    Combat(/*Actor actor1, Actor actor2,*/ Actor... actors){
+        Collections.addAll(this.actors, actors);
     }
 
     @Override
     public void loop(ConsoleSystemInterface csi){
-        boolean stop = false;
+        System.out.println("COMBAT");
+        //boolean stop = false;
         boolean matchOver = false;
-        while (!stop){
-            csi.cls();
-            csi.print(5, 10, "COMBAT LOL", CSIColor.ALICE_BLUE);
-            csi.refresh();
-            CharKey charKey = csi.inkey();
-            int code = charKey.code;
-            if(code == CharKey.UARROW){
-                System.out.println("ofofof ouch owie my bones");
+        //while (!stop){
+        while(!matchOver){
+            List<Actor> order = getOrder();
+            for (Actor a : order){
+                csi.print(a.getXpos(), a.getYpos(), a.getModel(), a.getModelColor());
             }
-            while(!matchOver){
-                List<Actor> actors = getOrder();
-                Actor first = actors.get(0);
-                Actor second = actors.get(1);
-                if(first.isAlive()){
-                    System.out.println(first.getMoves().get(0).getName());
-                    System.out.println(first.getMoves().get(0).getPower());
-                    first.attack(second, first.getMoves().get(0));
+            for (Actor a : order) {
+                if (a.isAlive()) {
+                    Actor target = a.chooseTarget(this.actors);
+                    System.out.println(a + " will attack: " + target);
+                    if (a instanceof Player) {
+                        //Actor target = a.chooseTarget(this.actors);
+                        CharKey k = csi.inkey();
+                        System.out.println(a + " pressed key: " + k);
+                        //how2 exit if last?
+                    } //else if (a instanceof Enemy) {
+                        //System.out.println("Enemy will attack: " + target);
+                        //a.attack(target, a.getMoves().get(0));
+                    //}
+                    a.attack(target, a.getMoves().get(0));
+                } else {
+                    if (a instanceof Player) {
+                        matchOver = true;
+                    } else if (getOrder().size() == 1) {
+                        matchOver = true;
+                    }
+                    //iterator.remove();
                 }
-                if(second.isAlive()){
-                    System.out.println(second.getMoves().get(0).getName());
-                    System.out.println(second.getMoves().get(0).getPower());
-                    second.attack(first, second.getMoves().get(0));
-                }
-                if(!first.isAlive() || !second.isAlive()){
-                    matchOver = true;
-                }
+//                    iterator.remove();
             }
-            stop = true;
-        }
+                //for (Actor a : order){
+                    //csi.refresh();
+                //}
+            }
+            //stop = true;
+        //}
     }
 
-    List<Actor> getOrder(){
+    private List<Actor> getOrder(){
         List<Actor> order = Collections.synchronizedList(new ArrayList<>());
-        if(actor1.getSpeed() > actor2.getSpeed()){
-            order.add(actor1);
-            order.add(actor2);
-        } else {
-            order.add(actor2);
-            order.add(actor1);
-        }
+        TreeMap<Integer, Actor> aMap = new TreeMap<>(Collections.reverseOrder());
+        this.actors.stream().filter(Actor::isAlive).forEach(actor -> {
+            aMap.put(actor.getSpeed(), actor);
+        });
+        order.addAll(aMap.entrySet().stream().map(Map.Entry::getValue).collect(Collectors.toList()));
         return order;
     }
 
     Actor getWinner(){
-        if(actor1.isAlive()){
+        /*if(actor1.isAlive()){
             return actor1;
         } else {
             return actor2;
-        }
+        }*/
+        return null;
     }
 }

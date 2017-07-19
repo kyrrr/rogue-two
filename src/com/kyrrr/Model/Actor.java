@@ -8,6 +8,7 @@ import net.slashie.libjcsi.CharKey;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by kyrrebugge on 03.07.2017.
@@ -22,8 +23,9 @@ public class Actor implements ActorInterface {
     List<Move> moves = new ArrayList<>();
     String model;
     CSIColor modelColor;
+    String uniqueID = UUID.randomUUID().toString();
 
-    Actor(){
+    public Actor(){
     }
 
     @Override
@@ -123,6 +125,7 @@ public class Actor implements ActorInterface {
 
     @Override
     public void die() {
+        System.out.println(this + " died");
         this.status.setHealth(0);
         this.alive = false;
         this.modelColor = CSIColor.AMARANTH;
@@ -131,20 +134,17 @@ public class Actor implements ActorInterface {
 
     @Override
     public boolean detectCollision(Actor actor){
-        int pX = this.xpos;
+        return this.xpos == actor.getXpos() && this.ypos == actor.getYpos();
+       /* int pX = this.xpos;
         int pY = this.ypos;
         int eX = actor.getXpos();
         int eY = actor.getYpos();
-        boolean hit = false;
-        if(pX == eX && pY == eY){
-            hit = true;
-        }
-        return hit;
+        return pX == eX && pY == eY;*/
     }
 
     @Override
     public int getSpeed() {
-        return speed;
+        return this.status.getSpeed();
     }
 
     @Override
@@ -164,7 +164,7 @@ public class Actor implements ActorInterface {
 
     @Override
     public void setAlive(boolean alive) {
-        if(!alive){
+        if(!alive){ // if alive = false, set health to 0
             status.setHealth(0);
         }
         this.alive = alive;
@@ -172,13 +172,37 @@ public class Actor implements ActorInterface {
 
     @Override
     public void handleMove(Move move) {
+        System.out.println(this + " attacked by " + move.getName() + " for " + move.getPower() + " points");
         int health = status.getHealth();
         int power = move.getPower();
         status.setHealth(health - power);
+        System.out.println(this + " has " + status.getHealth() + " HP remaining");
+        if(status.getHealth() < 1){
+            die();
+        }
+    }
+
+    @Override
+    public String getId() {
+        return uniqueID;
+    }
+
+    @Override
+    public Actor chooseTarget(List<Actor> actors) {
+        for (Actor a : actors){
+            if(!a.equals(this)){
+                if(a instanceof Player){
+                    return a;
+                } else if(a instanceof Enemy) {
+                    return a;
+                }
+            }
+        }
+        return null;
     }
 
     @Override
     public void setSpeed(int speed) {
-        this.speed = speed;
+        this.status.setSpeed(speed);
     }
 }

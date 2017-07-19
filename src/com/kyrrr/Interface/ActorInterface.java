@@ -54,4 +54,8 @@ public interface ActorInterface {
     void setAlive(boolean alive);
 
     void handleMove(Move move);
+
+    String getId();
+
+    Actor chooseTarget(List<Actor> actors);
 }

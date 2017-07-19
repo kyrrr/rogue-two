@@ -12,8 +12,7 @@ public class Player extends Actor {
         ypos = 0;
         model = "@";
         modelColor = CSIColor.PAPAYA_WHIP;
-        speed = 20;
-        //movesList.add(0, new Move("foo", 69));
+        status.setSpeed(20);
         moves.add(new Move("p-tack", 25));
     }
 
@@ -49,12 +48,12 @@ public class Player extends Actor {
 
     @Override
     public String getModel() {
-        return model;
+        return super.getModel();
     }
 
     @Override
     public void setModel(String model) {
-        this.model = model;
+        super.setModel(model);
     }
 
     @Override
@@ -90,5 +89,10 @@ public class Player extends Actor {
     @Override
     public List<Move> getMoves() {
         return super.getMoves();
+    }
+
+    @Override
+    public String getId() {
+        return super.getId();
     }
 }
