@@ -115,7 +115,9 @@ public class Actor implements ActorInterface {
 
     @Override
     public void attack(Actor actor, Move move) {
-        actor.handleMove(move);
+        if(this.alive){
+            actor.handleMove(move);
+        }
     }
 
     @Override
@@ -133,13 +135,29 @@ public class Actor implements ActorInterface {
     }
 
     @Override
-    public boolean detectCollision(Actor actor){
+    public boolean detectCollision(Actor actor) {
         return this.xpos == actor.getXpos() && this.ypos == actor.getYpos();
-       /* int pX = this.xpos;
-        int pY = this.ypos;
-        int eX = actor.getXpos();
-        int eY = actor.getYpos();
-        return pX == eX && pY == eY;*/
+    }
+
+    @Override
+    public boolean detectCollision(Item item) {
+        return this.xpos == item.getXpos() && this.ypos == item.getYpos();
+    }
+
+    @Override
+    public void handleItem(Item item) {
+        if(item.isUsable()){
+            System.out.println(this + " will handle " + item);
+            System.out.println(item + " has " + item.getEffects().size() + " effects");
+            item.getEffects().forEach(this::handleEffect);
+            item.setUsable(false);
+        }
+    }
+
+    @Override
+    public void handleEffect(Effect effect) {
+        System.out.println(this + " is affected by " + effect);
+        effect.affect(this);
     }
 
     @Override

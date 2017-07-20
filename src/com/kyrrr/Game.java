@@ -9,20 +9,19 @@ import net.slashie.libjcsi.ConsoleSystemInterface;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 
 class Game extends Loop {
 
     private boolean stop = false;
-    //private Player player = new Player();
     private EnemyFactory enFac = new EnemyFactory();
     private ItemFactory iFac = new ItemFactory();
     @Override
     public void loop(ConsoleSystemInterface csi) {
-        //setup();
         Player player = new Player();
-        List<Enemy> enemies = enFac.makeAtRand(10, Settings.screenWidth, Settings.screenHeight);
-        //List<Item> items = iFac.makeAtRand(4, Settings.screenWidth, Settings.screenHeight);
+        List<Enemy> enemies = enFac.makeAtRand(1, Settings.screenWidth, Settings.screenHeight);
+        List<Item> items = iFac.makeAtRand(4, Settings.screenWidth, Settings.screenHeight);
         int resetCountdown = 5;
         boolean allEnemiesDefeated = false;
         while(!stop){
@@ -33,6 +32,11 @@ class Game extends Loop {
                 csi.print(Settings.screenWidth - 3, Settings.screenHeight - 1, String.valueOf(player.getStatus().getHealth()), player.getModelColor());
                 for (Enemy e : enemies) {
                     csi.print(e.getXpos(), e.getYpos(), e.getModel(), e.getModelColor()); // print enemies at their current position
+                }
+                for (Item i : items){
+                    if(i.isUsable()) {
+                        csi.print(i.getXpos(), i.getYpos(), i.getModel(), i.getModelColor());
+                    }
                 }
                 CharKey dir = csi.inkey(); // wait for a key press.. i don't wanna wait. threading
                 int dirCode = dir.code;
@@ -58,6 +62,13 @@ class Game extends Loop {
                     }
                     if(getAliveEnemies(enemies).size() < 1){
                         allEnemiesDefeated = true;
+                        stop = true;
+                    }
+                }
+                for (Item i : items){
+                    if(player.detectCollision(i)){
+                        player.handleItem(i);
+                        i.setUsable(false);
                     }
                 }
                 if (resetCountdown < 1) {
@@ -68,6 +79,11 @@ class Game extends Loop {
                     csi.cls(); //clear screen
                     if(allEnemiesDefeated){
                         System.out.println("ALL DEAD");
+                        CharKey inst = csi.inkey(); // wait for a key press.. i don't wanna wait
+                        int actionCode = inst.code;
+                        if(actionCode == CharKey.R || actionCode == CharKey.r){
+                            loop(csi);
+                        }
                     } else {
                         csi.print(5, 10, "PAUSED - Q TO CONTINUE", CSIColor.ALICE_BLUE);
                         CharKey in = csi.inkey(); // wait for a key press
@@ -90,12 +106,6 @@ class Game extends Loop {
     }
 
     private List<Enemy> getAliveEnemies(List<Enemy> enemies){
-        List<Enemy> list = new ArrayList<>();
-        for (Enemy e : enemies){
-            if (e.isAlive()){
-                list.add(e);
-            }
-        }
-        return list;
+        return enemies.stream().filter(Actor::isAlive).collect(Collectors.toList());
     }
 }

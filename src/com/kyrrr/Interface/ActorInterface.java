@@ -41,6 +41,12 @@ public interface ActorInterface {
 
     boolean detectCollision(Actor actor);
 
+    boolean detectCollision(Item item);
+
+    void handleItem(Item item);
+
+    void handleEffect(Effect effect);
+
     void setSpeed(int speed);
 
     int getSpeed();

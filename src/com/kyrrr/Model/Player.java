@@ -13,6 +13,7 @@ public class Player extends Actor {
         model = "@";
         modelColor = CSIColor.PAPAYA_WHIP;
         status.setSpeed(20);
+        status.setHealth(100);
         moves.add(new Move("p-tack", 25));
     }
 
@@ -79,6 +80,11 @@ public class Player extends Actor {
     @Override
     public void handleMove(Move move) {
         super.handleMove(move);
+    }
+
+    @Override
+    public void handleItem(Item item) {
+        super.handleItem(item);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.kyrrr;
 
+import com.kyrrr.Model.Effects.BoostHealth;
 import com.kyrrr.Model.Item;
 import com.kyrrr.Model.Move;
 import net.slashie.libjcsi.CSIColor;
@@ -14,7 +15,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public class ItemFactory {
     List<Item> makeAtRand(int amount, int xbound, int ybound){
         List<Item> items = new ArrayList<>();
-        /*for (int i = 1; i <= amount; i++){
+        for (int i = 1; i <= amount; i++){
             Item Item = new Item();
             int randX = ThreadLocalRandom.current().nextInt(1, xbound);
             int randY = ThreadLocalRandom.current().nextInt(1, ybound);
@@ -22,8 +23,9 @@ public class ItemFactory {
             Item.setPos(randX, randY);
             Item.setModel("I");
             Item.setModelColor(CSIColor.ALICE_BLUE);
+            Item.addEffect(new BoostHealth());
             items.add(Item);
-        }*/
+        }
         return items;
     }
 }
