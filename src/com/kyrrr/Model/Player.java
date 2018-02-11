@@ -1,104 +1,29 @@
 package com.kyrrr.Model;
 
+import com.kyrrr.Model.Effects.BoostHealth;
+import com.kyrrr.Model.Effects.DamageHealth;
+import com.kyrrr.Model.Effects.Poison;
+import com.kyrrr.Model.Items.Sword;
 import net.slashie.libjcsi.CSIColor;
-import net.slashie.libjcsi.CharKey;
-import java.util.List;
 
 public class Player extends Actor {
 
     public Player(){
         alive = true;
-        xpos = 0;
-        ypos = 0;
-        model = "@";
+        coordinates.setCoordinates(0, 0);
+        zone.setOrigin(coordinates);
+        zone.setHeight(2);
+        zone.setWidth(4);
+        zone.calcRect();
+        //inventory.add(new Sword());
+        //zone.calcRectZoneTrailing(); TODO: one where keep trail = no new arraylist
+        model = ">";
         modelColor = CSIColor.PAPAYA_WHIP;
         status.setSpeed(20);
-        status.setHealth(100);
-        moves.add(new Move("p-tack", 25));
-    }
-
-    @Override
-    public void setXpos(int xpos) {
-        this.xpos = xpos;
-    }
-
-    @Override
-    public void setYpos(int ypos) {
-        this.ypos = ypos;
-    }
-
-    @Override
-    public int getYpos() {
-        return ypos;
-    }
-
-    @Override
-    public int getXpos() {
-        return xpos;
-    }
-
-    @Override
-    public boolean detectCollision(Actor actor) {
-        return super.detectCollision(actor);
-    }
-
-    @Override
-    public void setPos(int x, int y) {
-        super.setPos(x, y);
-    }
-
-    @Override
-    public String getModel() {
-        return super.getModel();
-    }
-
-    @Override
-    public void setModel(String model) {
-        super.setModel(model);
-    }
-
-    @Override
-    public CSIColor getModelColor() {
-        return modelColor;
-    }
-
-    @Override
-    public void move(CharKey dir) {
-        super.move(dir);
-    }
-
-    @Override
-    public void attack(Actor actor, Move move) {
-        super.attack(actor, move);
-    }
-
-    @Override
-    public void die() {
-        super.die();
-    }
-
-    @Override
-    public void handleMove(Move move) {
-        super.handleMove(move);
-    }
-
-    @Override
-    public void handleItem(Item item) {
-        super.handleItem(item);
-    }
-
-    @Override
-    public boolean isAlive() {
-        return super.isAlive();
-    }
-
-    @Override
-    public List<Move> getMoves() {
-        return super.getMoves();
-    }
-
-    @Override
-    public String getId() {
-        return super.getId();
+        status.setHealth(500);
+        moves.add(new Move("Punch", 10, new DamageHealth(49)));
+        moves.add(new Move("Cool Hwip", 15, new BoostHealth(10)));
+        moves.add(new Move("Spit", 0, new Poison()));
+        moves.add(new Move("Hadoken", 1, new DamageHealth(1000000)));
     }
 }

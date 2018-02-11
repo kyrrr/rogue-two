@@ -13,7 +13,7 @@ public class Loop implements LoopInterface {
     }
 
     @Override
-    public void loop(ConsoleSystemInterface csi) {
+    public void loop() {
 
     }
 

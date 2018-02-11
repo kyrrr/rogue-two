@@ -7,6 +7,6 @@ import net.slashie.libjcsi.ConsoleSystemInterface;
  */
 public interface LoopInterface {
     void setup();
-    void loop(ConsoleSystemInterface csi);
+    void loop();
     void cleanup();
 }

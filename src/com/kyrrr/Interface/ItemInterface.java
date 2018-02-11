@@ -15,33 +15,13 @@ public interface ItemInterface {
 
     void addEffect(Effect effect);
 
-    void setXpos(int xpos);
-
-    int getXpos();
-
-    void setYpos(int ypos);
-
-    int getYpos();
-
-    void setPos(int x, int y);
-
-    String getModel();
-
-    void setModel(String model);
-
-    CSIColor getModelColor();
-
-    void setModelColor(CSIColor color);
-
-    void move(String dir, int amount);
-
-    boolean detectCollision(Actor actor);
+    void addEffects(Effect... effects);
 
     boolean isUsable();
 
+    String getType();
+
     void setUsable(boolean usable);
 
-    void handleItem(Item item);
 
-    String getId();
 }

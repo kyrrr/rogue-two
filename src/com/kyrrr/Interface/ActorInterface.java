@@ -1,8 +1,6 @@
 package com.kyrrr.Interface;
 
 import com.kyrrr.Model.*;
-import net.slashie.libjcsi.CSIColor;
-import net.slashie.libjcsi.CharKey;
 
 import java.util.List;
 
@@ -11,27 +9,7 @@ import java.util.List;
  */
 public interface ActorInterface {
 
-    void setXpos(int xpos);
 
-    int getXpos();
-
-    void setYpos(int ypos);
-
-    int getYpos();
-
-    void setPos(int x, int y);
-
-    String getModel();
-
-    void setModel(String model);
-
-    CSIColor getModelColor();
-
-    void setModelColor(CSIColor color);
-
-    void move(CharKey dir);
-
-    void move(String dir, int amount);
 
     void attack(Actor actor, Move move);
 
@@ -41,7 +19,7 @@ public interface ActorInterface {
 
     boolean detectCollision(Actor actor);
 
-    boolean detectCollision(Item item);
+    boolean detectCollision(Coordinates coordinates);
 
     void handleItem(Item item);
 
@@ -64,4 +42,13 @@ public interface ActorInterface {
     String getId();
 
     Actor chooseTarget(List<Actor> actors);
+
+    Move chooseMove(int index);
+
+   // Inventory getInventory();
+
+    List<Item> getInventory();
+
+    Coordinates getCoordinates();
+
 }

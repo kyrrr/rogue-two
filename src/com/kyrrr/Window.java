@@ -1,6 +1,5 @@
 package com.kyrrr;
 
-import com.kyrrr.Model.Player;
 import net.slashie.libjcsi.ConsoleSystemInterface;
 import net.slashie.libjcsi.wswing.WSwingConsoleInterface;
 
@@ -21,6 +20,7 @@ class Window {
         try{
             String title = Settings.title;
             this.csi = new WSwingConsoleInterface(title, properties);
+
         }
         catch (ExceptionInInitializerError e) {
             System.out.println("*** Error: Swing Console Box cannot be initialized. Exiting...");

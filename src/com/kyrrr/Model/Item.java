@@ -1,9 +1,12 @@
 package com.kyrrr.Model;
 
+import com.kyrrr.Enum.Directions;
 import com.kyrrr.Interface.ItemInterface;
+import com.kyrrr.Settings;
 import net.slashie.libjcsi.CSIColor;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -15,14 +18,11 @@ public class Item implements ItemInterface {
 
     private int xpos;
     private int ypos;
-    private boolean usable;
-    private String model;
-    private CSIColor modelColor;
+    private Coordinates coordinates = new Coordinates();
+    private boolean usable = true;
     private List<Effect> effects = new ArrayList<>();
-    private String uniqueID = UUID.randomUUID().toString();
 
-    public Item(){
-        usable = true;
+    public Item() {
     }
 
     @Override
@@ -36,59 +36,8 @@ public class Item implements ItemInterface {
     }
 
     @Override
-    public void setXpos(int xpos) {
-        this.xpos = xpos;
-    }
-
-    @Override
-    public int getXpos() {
-        return this.xpos;
-    }
-
-    @Override
-    public void setYpos(int ypos) {
-        this.ypos = ypos;
-    }
-
-    @Override
-    public int getYpos() {
-        return this.ypos;
-    }
-
-    @Override
-    public void setPos(int x, int y) {
-        this.xpos = x;
-        this.ypos = y;
-    }
-
-    @Override
-    public String getModel() {
-        return this.model;
-    }
-
-    @Override
-    public void setModel(String model) {
-        this.model = model;
-    }
-
-    @Override
-    public CSIColor getModelColor() {
-        return this.modelColor;
-    }
-
-    @Override
-    public void setModelColor(CSIColor color) {
-        this.modelColor = color;
-    }
-
-    @Override
-    public void move(String dir, int amount) {
-        // items can move around
-    }
-
-    @Override
-    public boolean detectCollision(Actor actor) {
-        return false;
+    public void addEffects(Effect... effects) {
+        Collections.addAll(this.effects, effects);
     }
 
     @Override
@@ -97,17 +46,14 @@ public class Item implements ItemInterface {
     }
 
     @Override
+    public String getType() {
+        return null;
+    }
+
+    @Override
     public void setUsable(boolean usable) {
         this.usable = usable;
     }
 
-    @Override
-    public void handleItem(Item item) {
-        // item + item = item
-    }
 
-    @Override
-    public String getId() {
-        return this.uniqueID;
-    }
 }

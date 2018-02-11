@@ -6,6 +6,7 @@ import net.slashie.libjcsi.CharKey;
 import net.slashie.libjcsi.ConsoleSystemInterface;
 
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 /**
@@ -16,33 +17,72 @@ import java.util.stream.Collectors;
 class Combat extends Loop {
 
     private List<Actor> actors = new ArrayList<>();
+    private ConsoleSystemInterface csi;
     
-    Combat(Actor... actors){
+    Combat(ConsoleSystemInterface csi, Actor... actors){ // not really just use 2
+        this.csi = csi;
+        csi.cls();
         Collections.addAll(this.actors, actors);
     }
 
     @Override
-    public void loop(ConsoleSystemInterface csi){
+    public void loop(){
         boolean matchOver = false;
         while(!matchOver){
+            csi.cls();
+            printBorder();
+            printUi();
             List<Actor> order = getOrder();
             for (Actor a : order){
-                csi.print(a.getXpos(), a.getYpos(), a.getModel(), a.getModelColor());
+
+
             }
             if (getOrder().size() > 1) {
                 for (Actor a : order) {
+                    List<Move> m = a.getMoves();
                     Actor target = a.chooseTarget(this.actors);
-                    System.out.println(a + " will attack: " + target);
                     if (a instanceof Player) {
                         CharKey k = csi.inkey();
-                        System.out.println(a + " pressed key: " + k);
+                        Move move = m.get(k.code);
+                        System.out.println("Player used " + move.getName());
+                        a.attack(target, move);
+                    } else if(a instanceof Enemy){
+                        int randAtk = ThreadLocalRandom.current().nextInt(0, m.size() - 1);
+                        Move move = m.get(randAtk);
+                        System.out.println("Enemy used " + move.getName());
+                        a.attack(target, move);
                     }
-                    a.attack(target, a.getMoves().get(0));
                 }
             } else {
                 matchOver = true;
             }
+            csi.refresh();
         }
+    }
+
+    @LOL
+    private void printBorder(){
+        int yLimitFromBottom = 6;
+        for (int x=0;x<Settings.screenWidth;x++){
+            csi.print(x, 0, "_", CSIColor.WHITE);
+        }
+        for (int y=1;y<Settings.screenHeight;y++){
+            csi.print(0, y, "|", CSIColor.WHITE);
+        }
+        for (int i=Settings.screenHeight;i>0;i--){ // right t -> d
+            csi.print(Settings.screenWidth - 1, i, "|", CSIColor.WHITE);
+        }
+        for (int j=Settings.screenWidth - 2;j>0;j--){ // bottom r -> l
+            csi.print(j, Settings.screenHeight - yLimitFromBottom, "-", CSIColor.WHITE);
+        }
+
+    }
+
+    private void printUi(){
+        Coordinates origin = new Coordinates(1,Settings.screenHeight - 6);
+        Zone z = new Zone();
+
+
     }
 
     private List<Actor> getOrder(){
