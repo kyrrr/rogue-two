@@ -14,6 +14,10 @@ public class Antidote extends Effect {
         color = CSIColor.ISLAMIC_GREEN;
     }
 
+    @Override
+    public String getEffectString(Actor actor) {
+        return actor.getName() + " is healed of poison";
+    }
 
     @Override
     public void affect(Actor actor) {

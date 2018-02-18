@@ -9,6 +9,7 @@ import net.slashie.libjcsi.CSIColor;
 public class Player extends Actor {
 
     public Player(){
+        name = "Hero Guy";
         alive = true;
         coordinates.setCoordinates(0, 0);
         zone.setOrigin(coordinates);
@@ -21,9 +22,9 @@ public class Player extends Actor {
         modelColor = CSIColor.PAPAYA_WHIP;
         status.setSpeed(20);
         status.setHealth(500);
-        moves.add(new Move("Punch", 10, new DamageHealth(49)));
+        moves.add(new Move("Punch", 10, new DamageHealth(51)));
         moves.add(new Move("Cool Hwip", 15, new BoostHealth(10)));
         moves.add(new Move("Spit", 0, new Poison()));
-        moves.add(new Move("Hadoken", 1, new DamageHealth(1000000)));
+        moves.add(new Move("Hadoken", 1, new DamageHealth(100)));
     }
 }

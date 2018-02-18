@@ -18,6 +18,11 @@ public class Poison extends Effect {
     }
 
     @Override
+    public String getEffectString(Actor actor) {
+        return actor.getName() + " is poisoned";
+    }
+
+    @Override
     public void affect(Actor actor) {
         actor.getStatus().setPoisoned(true);
     }

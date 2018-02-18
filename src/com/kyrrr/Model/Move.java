@@ -14,8 +14,6 @@ public class Move { // TODO: extend
         this.effect = effect;
     }
 
-
-
     public String getName() {
         return name;
     }

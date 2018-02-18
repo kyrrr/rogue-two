@@ -24,20 +24,9 @@ class EnemyFactory {
             Enemy enemy = new Enemy();
             int randX = ThreadLocalRandom.current().nextInt(12, xbound - 1);
             int randY = ThreadLocalRandom.current().nextInt(1, ybound - 1);
-            int randAtk = ThreadLocalRandom.current().nextInt(1, 15);
-            enemy.setAlive(true);
-            enemy.addMove(new Move("Scratch", 1000, new DamageHealth(randAtk)));
-            enemy.addMove(new Move("Spit", 1000, new Poison()));
-            enemy.addMove(new Move("Heal", 1000, new BoostHealth(25)));
-            enemy.setSpeed(10);
+            enemy.setName("enemy"+i);
             enemy.setPos(randX, randY);
-            enemy.getZone().setOrigin(enemy.getCoordinates());
-            enemy.getZone().setHeight(4);
-            enemy.getZone().setWidth(10);
-            enemy.getZone().calcRect();
-            enemy.setModel("E");
-            enemy.setModelColor(CSIColor.AMBER);
-            enemy.getInventory().add(new Sword());
+            enemy.setSpeed(9000);
             enemies.add(enemy);
         }
         return enemies;

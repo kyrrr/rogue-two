@@ -3,6 +3,7 @@ package com.kyrrr.Model;
 import com.kyrrr.Enum.Directions;
 import com.kyrrr.Interface.ActorInterface;
 import com.kyrrr.Interface.Printable;
+import com.kyrrr.LOL;
 import com.kyrrr.Settings;
 import net.slashie.libjcsi.CSIColor;
 import net.slashie.libjcsi.CharKey;
@@ -17,6 +18,7 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class Actor implements ActorInterface, Printable {
 
+    protected String name;
     protected boolean alive;
     protected Coordinates coordinates = new Coordinates();
     protected Status status = new Status();
@@ -180,6 +182,7 @@ public class Actor implements ActorInterface, Printable {
     }
 
     @Override
+    @LOL
     public void attack(Actor actor, Move move) {
         if(alive){
             if(status.isPoisoned()){
@@ -280,12 +283,12 @@ public class Actor implements ActorInterface, Printable {
 
     @Override
     public Actor chooseTarget(List<Actor> actors) {
-        for (Actor a : actors){
-            if(this.alive && !a.equals(this)){
-                if(a instanceof Player){
-                    return a;
-                } else if(a instanceof Enemy) {
-                    return a;
+        for (Actor possibleTarget : actors){
+            if(this.alive && !possibleTarget.equals(this)){
+                if(possibleTarget instanceof Player){
+                    return possibleTarget;
+                } else if(possibleTarget instanceof Enemy) {
+                    return possibleTarget;
                 }
             }
         }
@@ -449,6 +452,17 @@ public class Actor implements ActorInterface, Printable {
     public Coordinates getCoordinates() {
         return coordinates;
     }
+
+    @Override
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
 
     @Override
     public void setActorViewDirection(String direction) {

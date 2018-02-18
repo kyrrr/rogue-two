@@ -7,4 +7,5 @@ import com.kyrrr.Model.Actor;
  */
 public interface EffectInterface {
     void affect(Actor actor);
+    String getEffectString(Actor actor);
 }

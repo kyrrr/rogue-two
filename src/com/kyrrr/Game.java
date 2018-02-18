@@ -20,15 +20,19 @@ class Game extends Loop {
     private ConsoleSystemInterface csi;
     private int level;
     private boolean progress = false;
-    private boolean debug = false;
 
     Game(int level, ConsoleSystemInterface csi){
         this.csi = csi;
         this.level = level;
-        int numEnemies = level + 10;
+        int numEnemies = level + 1;
         p = new Player();
         EnemyFactory enFac = new EnemyFactory();
         enemies = enFac.makeAtRand(numEnemies, Settings.screenWidth, Settings.screenHeight); //todo: actorfac
+        Enemy extraEnemy = new Enemy();
+        extraEnemy.setXpos(p.getXpos() + 1);
+        extraEnemy.setYpos(p.getYpos() + 2);
+        extraEnemy.setName("extra enemy");
+        enemies.add(extraEnemy);
         LootFactory lFac = new LootFactory();
         loot = lFac.makeAtRand(5, Settings.screenWidth, Settings.screenHeight);
        // System.out.println(loot);
@@ -54,9 +58,6 @@ class Game extends Loop {
         obstacles.calcRectZoneWithObstacles(4, exclude);
     }
 
-    void debug(){
-        debug = true;
-    }
 
     private void printMap(){
         String obstacleChar = "|";
@@ -88,6 +89,7 @@ class Game extends Loop {
                 restart("WIN");
             }
             CharKey dir = csi.inkey(); // wait for a key press.. i don't wanna wait OR DO I
+            //System.out.println(dir);
             //System.out.println(dir.code);
            // System.out.println(dir.code);
             Coordinates next = p.getNextPos(dir.code);

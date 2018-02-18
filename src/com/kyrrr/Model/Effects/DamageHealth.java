@@ -18,6 +18,11 @@ public class DamageHealth extends Effect {
     }
 
     @Override
+    public String getEffectString(Actor actor) {
+        return actor.getName() + " loses " +  damage + " health";
+    }
+
+    @Override
     public void affect(Actor actor) {
         actor.getStatus().setHealth(actor.getStatus().getHealth() - damage);
     }

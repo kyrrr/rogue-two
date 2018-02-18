@@ -51,4 +51,8 @@ public interface ActorInterface {
 
     Coordinates getCoordinates();
 
+    void setName(String name);
+
+    String getName();
+
 }

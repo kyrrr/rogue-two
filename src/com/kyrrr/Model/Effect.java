@@ -16,6 +16,11 @@ public class Effect implements EffectInterface{
     public void affect(Actor actor) {
     }
 
+    @Override
+    public String getEffectString(Actor actor) {
+        return null;
+    }
+
     public boolean isGood() {
         return good;
     }

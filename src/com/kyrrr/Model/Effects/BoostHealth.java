@@ -19,6 +19,11 @@ public class BoostHealth extends Effect {
     }
 
     @Override
+    public String getEffectString(Actor actor) {
+        return actor.getName() + " gains " + healthBoost + " health";
+    }
+
+    @Override
     public void affect(Actor actor) {
         Status status = actor.getStatus();
         status.setHealth(status.getHealth() + healthBoost);
