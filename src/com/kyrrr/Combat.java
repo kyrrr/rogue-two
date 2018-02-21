@@ -1,6 +1,16 @@
 package com.kyrrr;
 
-import com.kyrrr.Model.*;
+import com.kyrrr.Model.Actors.Actor;
+import com.kyrrr.Model.Actors.Enemy;
+import com.kyrrr.Model.Actors.Player;
+import com.kyrrr.Model.Effects.Effect;
+import com.kyrrr.Model.Items.Consumable;
+import com.kyrrr.Model.Items.Item;
+import com.kyrrr.Model.Items.SelfItem;
+import com.kyrrr.Model.Items.Weapon;
+import com.kyrrr.Model.Moves.Move;
+import com.kyrrr.Model.Moves.SelfMove;
+import com.kyrrr.Model.Status.Inventory;
 import net.slashie.libjcsi.CSIColor;
 import net.slashie.libjcsi.CharKey;
 import net.slashie.libjcsi.ConsoleSystemInterface;
@@ -14,11 +24,15 @@ import java.util.stream.Collectors;
  * COMBAAAT
  */
 // TODO: ATTACKS/EVERYTHING
+ //   TODO: refactor. move that printing loop
 class Combat extends Loop {
 
-    private List<Actor> actors = new ArrayList<>();
+    private List<Actor> actors = new ArrayList<>(); //weh
+    private Player player;
+    private Enemy enemy;
     private ConsoleSystemInterface csi;
-    private int selection = 0;
+    private int selectionY = 0;
+    private int selectionX = 0;
     private int firstMoveY = Settings.screenHeight - 5;
     private int moveListLeftPad = 3;
     private int firstLogY = 4;
@@ -26,28 +40,70 @@ class Combat extends Loop {
     private List<String> log = new ArrayList<>();
     private int logMaxLength = 6;
     private Actor winner;
-    
-    Combat(ConsoleSystemInterface csi, Actor... actors){ // not really just use 2
+    private Move selectedMove;
+    private Item selectedItem;
+
+    Combat(ConsoleSystemInterface csi, Player player, Enemy enemy){
         this.csi = csi;
-        csi.cls();
-        csi.refresh();
-        printBorder();
-        Collections.addAll(this.actors, actors);
+        this.player = player;
+        this.enemy = enemy;
+        actors.add(player);
+        actors.add(enemy);
+        setup();
     }
 
-    protected void printMoves(Actor a){
+    @Override
+    public void setup() {
+        List<String> vowels = new ArrayList<>(5);
+        vowels.addAll(Arrays.asList("a", "e", "i", "o", "u"));
+        String prefix = "A ";
+        if(vowels.contains(enemy.getName().toLowerCase())){
+            prefix = "An ";
+        }
+        csi.cls();
+        String intro = prefix + enemy.getName() + " appeared!";
+        int f = (Settings.screenWidth / 2) - (intro.length() / 2);
+        csi.print(f, Math.round(Settings.screenHeight/2), intro);
+        csi.print(f, Math.round(Settings.screenHeight/2) + 2, "Let's fighting spirit!", CSIColor.RED);
+        //csi.print(Math.round(Settings.screenWidth / 2) - 3, Math.round(Settings.screenHeight) / 2, intro);
+        csi.refresh();
+        csi.inkey();
+        printBorder();
+    }
+
+    protected void printChoices(Actor a){
         List<Move> moveList = a.getMoves();
+        Inventory itemList = a.getInventory();
         int i = 0;
-        int y = firstMoveY;
+        int j = 0;
+        int moveY = firstMoveY;
+        int itemY = firstMoveY;
         for (Move m : moveList){
             String prefix = "";
-            if(i == selection){
+            if(selectionX == 0 && i == selectionY){
                 prefix = "> " + prefix;
             }
-            csi.print(moveListLeftPad, y,  prefix + m.getName());
+            csi.print(moveListLeftPad, moveY,  prefix + m.getName() + "(" + m.getUses() + ")");
             csi.refresh();
-            y++;
+            moveY++;
             i++;
+        }
+        for (Item t : itemList.getContents()){
+            String prefix = "";
+            if(selectionX == 1 && j == selectionY){
+                prefix = "> " + prefix;
+            }
+            String out = prefix + t.getName();
+            if(t instanceof Weapon){
+                out += "(" + ((Weapon) t).getDurability() + ")";
+            } else if(t instanceof Consumable){
+                out += "(" + ((Consumable) t).getUses() + ")";
+            }
+           // System.out.println(out);
+            csi.print(moveListLeftPad + 20, itemY,  out);
+            csi.refresh();
+            itemY++;
+            j++;
         }
 
     }
@@ -68,53 +124,127 @@ class Combat extends Loop {
         csi.refresh();
     }
 
-    protected Move selectMove(Actor a){
-        printMoves(a);
-        log(a.getName() + " to move");
-       // clearLog();
-        printLog();
-        List<Move> moveList = a.getMoves();
-        boolean selected = false;
-        while (!selected){
-            printStatus(a);
-            CharKey k = csi.inkey();
-            if(k.isDownArrow()){
-                selection++;
-            } else if(k.isUpArrow()){
-                selection--;
-            }
-            if(selection < 0){
-                selection = 0;
-            } else if(selection > 3){
-                selection = 3;
-            }
-            clearMove(selection, moveList.get(selection)); //todo:clearHorizontal(xstart, ylength)
-            printMoves(a);
-            if(k.code == CharKey.ENTER){
-                selected = true;
-            } else {
-                printBorder();
-                printLog();
-            }
+    protected void clearMoveXY(int y, Item replaceWith){
+        csi.cls();
+        int first = firstMoveY;
+        int selectedPos = first + y;
+        String p = "";
+        for(int i=0;i<=replaceWith.getName().length();i++){
+            p += " ";
         }
-        return moveList.get(selection);
+        csi.print(moveListLeftPad + 20, selectedPos, p);
+        csi.refresh();
     }
 
-    protected void printStatus(Actor a){
-        int h = a.getStatus().getHealth();
-        String hstr = "" + h;
-        csi.print(Settings.screenWidth - hstr.length() - 1, firstMoveY, hstr);
+    void moveCursor(CharKey k, int low, int maxCol1, int maxCol2, boolean hasCol2){
+        if(k.isDownArrow()){
+            selectionY++;
+        } else if(k.isUpArrow()){
+            selectionY--;
+        } else if(k.isLeftArrow()){
+            selectionX--;
+        } else if(k.isRightArrow() && hasCol2){
+            selectionX++;
+        }
+
+        if(selectionY < low){
+            selectionY = low;
+        } else if(selectionX == 0 && selectionY >= maxCol1){
+            selectionY = maxCol1;
+        } else if(selectionX == 1 && selectionY >= maxCol2){
+            selectionY = maxCol2;
+        }
+
+        if(selectionX < 0){
+            selectionX = 0;
+        } else if(selectionX > 1){
+            selectionX = 1;
+        }
+    }
+
+    void clearSelection(List<Move> moveList, Inventory itemList){
+        if(selectionX == 0){
+            clearMove(selectionY, moveList.get(selectionY)); //todo:clearHorizontal(xstart, ylength)
+        } else if(selectionX == 1 && selectionY < itemList.size()){ //select an item
+            clearMoveXY(selectionY, itemList.get(selectionY));
+        }
+    }
+
+    boolean trySelection(CharKey k){
+        return k.code == CharKey.ENTER;
+    }
+
+    void doSelection(List<Move> moveList, Inventory itemList){
+        if(selectionX == 0){
+            selectedMove = moveList.get(selectionY);
+        } else if(selectionX == 1){
+            selectedItem = itemList.get(selectionY);
+        }
+    }
+
+    void selectAction(Actor a){
+        printChoices(a);
+        log("Your move!");
+        printLog();
+        List<Move> moveList = a.getMoves();
+        Inventory itemList = a.getInventory();
+        int low = 0; //future scrolling maybe? arrow down on last load next 4
+        int maxMoves = moveList.size() - 1;
+        boolean selected = false;
+        while (!selected){
+            int maxItems = itemList.size();
+            int itemIndexMax = maxItems - 1;
+            boolean useItemColumn = maxItems > 0;
+            printStatus(a);
+            printEnemyStatus();
+            CharKey k = csi.inkey();
+            moveCursor(k, low, maxMoves, itemIndexMax, useItemColumn);
+            clearSelection(moveList, itemList);
+            printChoices(a);
+            if(!trySelection(k)){
+                printBorder();
+                printLog();
+            } else {
+                selected = true;
+            }
+        }
+        doSelection(moveList, itemList);
     }
 
     @LOL
-    protected Move playerAction(Actor p){
-        //int selection = 0;
-        //printMoves(p);
+    void printEnemyStatus(){
+        int h = enemy.getStatus().getHealth();
+        String hstr = "Health: " + h;
+        int i = 0;
+        csi.print(Settings.screenWidth - enemy.getName().length() - 1, 5, enemy.getName());
+        i++;
+        csi.print(Settings.screenWidth - hstr.length() - 1, 5 + i, hstr);
+    }
+
+    @LOL
+    void printStatus(Actor a){
+        int h = a.getStatus().getHealth();
+        String hstr = h + " HP";
+        String topStr = a.getName();
+        if(a.getStatus().isPoisoned()){
+            topStr += " PSN x" + a.getStatus().getPoisonStack();
+        }
+        int i = 0;
+        csi.print(Settings.screenWidth - topStr.length() - 1, firstMoveY, topStr);
+        i++;
+        csi.print(Settings.screenWidth - hstr.length() - 1, firstMoveY + i, hstr);
+    }
+
+    @LOL
+    protected void playerAction(Actor p){
+        //int selectionY = 0;
+        //printChoices(p);
         //System.out.println(k.code);
-        Move m = selectMove(p);
-        log("Player used " + m.getName());
+        selectAction(p);
+        if(selectedMove == null && selectedItem == null){
+            playerAction(p);
+        }
        // printLog();
-        return m;
     }
 
 
@@ -135,34 +265,90 @@ class Combat extends Loop {
         csi.refresh();
     }
 
+    void doPlayerMove(Actor target){
+        Effect e = selectedMove.getFirstEffect();
+        if(selectedMove instanceof SelfMove){
+            log(e.getEffectString(player));
+            player.attackSelf(selectedMove);
+        } else {
+            if(!target.getStatus().isProtected()){
+                log(e.getEffectString(target));
+                player.attack(target, selectedMove);
+            }else{
+                log(target.getName() + " is protected!");
+                target.getStatus().tickProtection();
+            }
+        }
+    }
+
+    void doPlayerItem(Actor target){
+        Effect e = selectedItem.getEffects().get(0); // look out!
+        if(selectedItem instanceof SelfItem){
+            player.handleEffect(e);
+            log(e.getEffectString(player));
+        } else {
+            log(e.getEffectString(target));
+            target.handleEffect(e);
+        }
+        selectedItem.use();
+        if(!selectedItem.isUsable()){
+            player.getInventory().remove(selectedItem);
+        }
+        if(player.getInventory().isEmpty()){
+            selectionX = 0;
+        }
+    }
+
     protected boolean combatAction(){
         List<Actor> order = getOrder();
         if (getOrder().size() > 1) {
             for (Actor a : order) {
                 List<Move> moveList = a.getMoves();
                 Actor target = a.chooseTarget(this.actors);
-                Move move = null;
+                Move move;
                 Effect e;
                 if (a instanceof Player) {
-                    move = playerAction(a);
-                    e = move.getEffect();
-                    if(e.isGood()){
-                        log(e.getEffectString(a));
-                    } else {
-                        log(e.getEffectString(target));
+                    //System.out.println(a.getStatus().isProtected());
+                    while(selectedMove == null && selectedItem == null){
+                        playerAction(a);
                     }
+                    if(selectedMove != null){
+                        doPlayerMove(target);
+                    } else if(selectedItem != null){
+                        doPlayerItem(target);
+                    }
+                    selectedItem = null;
+                    selectedMove = null;
                 } else if(a instanceof Enemy) {
-                    int randAtk = ThreadLocalRandom.current().nextInt(0, moveList.size() - 1);
+                    //printEnemyStatus((Enemy)a);
+                    //printEnemyStatus((Enemy)a);
+                    int bound = moveList.size();
+                    if(bound != 1){
+                        bound--;
+                    }
+                    int randAtk = ThreadLocalRandom.current().nextInt(0, bound);
+                   // System.out.println(randAtk);
                     move = moveList.get(randAtk);
                     if(target != null){
-                        e = move.getEffect();
-                        log("Enemy used " + move.getName());
-                        log(e.getEffectString(target));
+                        //e = move.getFirstEffect();
+                        if(move instanceof SelfMove){
+
+                        } else {
+                            if(!target.getStatus().isProtected()){
+                                log(a.getName() + " used " + move.getName());
+                                //String effectLog = "";
+                                for (Effect ef : move.getEffects()) {
+                                    log(ef.getEffectString(target));
+                                }
+                                a.attack(target, move);
+                            } else {
+                                log(target.getName() + " is protected!");
+                                target.getStatus().tickProtection();
+                            }
+                        }
                     }
                 }
-                a.attack(target, move);
             }
-            //clearLog();
             csi.refresh();
             return true;
         } else {
@@ -171,18 +357,16 @@ class Combat extends Loop {
         }
     }
 
-
-
     @Override
     public void loop(){
         boolean matchOver = false;
         while(!matchOver){
             csi.cls();
             printBorder();
-            printLog();
-
             if(!combatAction()){
+                log(" ");
                 log("A winner is " + getWinner().getName());
+                log("Press the Any key to continue");
                 printLog();
                 csi.inkey();
                 matchOver = true;
@@ -197,7 +381,7 @@ class Combat extends Loop {
         for (int x=0;x<Settings.screenWidth;x++){
             csi.print(x, 0, "_", CSIColor.WHITE);
         }
-        for (int y=1;y<Settings.screenHeight;y++){
+        for (int y=1;y<=Settings.screenHeight;y++){
             csi.print(0, y, "|", CSIColor.WHITE);
         }
         for (int i=Settings.screenHeight;i>0;i--){ // right t -> d
@@ -206,14 +390,6 @@ class Combat extends Loop {
         for (int j=Settings.screenWidth - 2;j>0;j--){ // bottom r -> l
             csi.print(j, Settings.screenHeight - yLimitFromBottom, "-", CSIColor.WHITE);
         }
-
-    }
-
-    private void printUi(){
-        Coordinates origin = new Coordinates(1, Settings.screenHeight - 4);
-        Zone z = new Zone();
-        //csi.print(origin.getX(), origin.getY(), "Hello");
-
     }
 
     private List<Actor> getOrder(){

@@ -1,8 +1,6 @@
 package com.kyrrr.Interface;
 
-import com.kyrrr.Model.*;
-import net.slashie.libjcsi.CSIColor;
-import net.slashie.libjcsi.CharKey;
+import com.kyrrr.Model.Effects.Effect;
 
 import java.util.List;
 
@@ -23,5 +21,9 @@ public interface ItemInterface {
 
     void setUsable(boolean usable);
 
+    void setName(String name);
 
+    String getName();
+
+    void use();
 }

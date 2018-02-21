@@ -1,8 +1,8 @@
 package com.kyrrr.Interface;
 
-import com.kyrrr.Model.Actor;
-import com.kyrrr.Model.Coordinates;
-import com.kyrrr.Model.Zone;
+import com.kyrrr.Model.Actors.Actor;
+import com.kyrrr.Model.Position.Coordinates;
+import com.kyrrr.Model.Position.Zone;
 import net.slashie.libjcsi.CSIColor;
 import net.slashie.libjcsi.CharKey;
 
@@ -49,7 +49,7 @@ public interface Printable {
 
     CharKey getCharKeyMoveDirectionTowards(Actor actor);
 
-    int getCharCodeMoveDirectionTowards(Actor actor);
+    int getCharCodeMoveTowards(Actor actor);
 
     void setActorViewDirection(String direction);
 }

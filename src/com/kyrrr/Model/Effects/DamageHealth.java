@@ -1,7 +1,6 @@
 package com.kyrrr.Model.Effects;
 
-import com.kyrrr.Model.Actor;
-import com.kyrrr.Model.Effect;
+import com.kyrrr.Model.Actors.Actor;
 import net.slashie.libjcsi.CSIColor;
 
 /**
@@ -12,7 +11,7 @@ public class DamageHealth extends Effect {
     private int damage;
 
     public DamageHealth(int damage){
-        good = false;
+      //  beneficialToCaster = false;
         this.damage = damage;
         color = CSIColor.GREEN;
     }
@@ -23,8 +22,10 @@ public class DamageHealth extends Effect {
     }
 
     @Override
-    public void affect(Actor actor) {
+    public boolean affect(Actor actor) {
+        int before = actor.getStatus().getHealth();
         actor.getStatus().setHealth(actor.getStatus().getHealth() - damage);
+        return actor.getStatus().getHealth() < before;
     }
 
     public int getDamage() {

@@ -1,8 +1,7 @@
 package com.kyrrr.Interface;
 
-import com.kyrrr.Model.Actor;
-import com.kyrrr.Model.Inventory;
-import com.kyrrr.Model.Item;
+import com.kyrrr.Model.Status.Inventory;
+import com.kyrrr.Model.Items.Item;
 
 import java.util.List;
 
@@ -25,4 +24,6 @@ public interface InventoryInterface {
     void remove(int index);
     int getAmount();
     int getFreeSpace();
+    boolean containsInstanceOf(Item i);
+    Item getFirstInstanceOf(Item i);
 }
